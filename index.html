@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Produits Chine</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .products-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-list {
+            margin-bottom: 20px;
+        }
+        
+        .product-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-info {
+            flex-grow: 1;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .product-model {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .product-stock {
+            color: #3498db;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .delete-btn {
+            color: #e74c3c;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .footer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .product-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .product-image {
+                margin-bottom: 10px;
+            }
+            
+            .product-actions {
+                align-self: flex-end;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="https://i.postimg.cc/CKCgrnHb/5913292883186796968-1.jpg" alt="Logo" class="logo">
+            <h1>Gestion des Produits pour la Chine</h1>
+            <p>Ajoutez et gérez vos produits facilement</p>
+        </header>
+        
+        <div class="form-container">
+            <div class="form-group">
+                <label for="productImage">Image (cliquez pour sélectionner)</label>
+                <div class="image-preview" id="imagePreview">
+                    <span>+</span>
+                </div>
+                <input type="file" id="productImage" accept="image/*" style="display: none;">
+            </div>
+            
+            <div class="form-group">
+                <label for="productName">Nom</label>
+                <input type="text" id="productName" placeholder="Nom du produit">
+            </div>
+            
+            <div class="form-group">
+                <label for="productModel">Modèle</label>
+                <input type="text" id="productModel" placeholder="Modèle du produit">
+            </div>
+            
+            <div class="form-group">
+                <label for="productStock">Stock</label>
+                <input type="number" id="productStock" placeholder="Quantité en stock">
+            </div>
+            
+            <div class="form-group">
+                <label for="productDetails">Détails</label>
+                <textarea id="productDetails" placeholder="Détails supplémentaires..."></textarea>
+            </div>
+            
+            <button class="btn btn-primary" id="addProduct">Ajouter un produit</button>
+        </div>
+        
+        <div class="products-container">
+            <h2>Liste des Produits</h2>
+            <div class="product-list" id="productList">
+                <!-- Les produits seront ajoutés ici dynamiquement -->
+            </div>
+            
+            <div class="footer-buttons">
+                <button class="btn btn-danger" id="deleteAll">Tout supprimer</button>
+                <button class="btn btn-success" id="generatePDF">Générer PDF</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <h3>Confirmer la suppression</h3>
+            <p>Êtes-vous sûr de vouloir supprimer tous les produits ?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="cancelDelete">Annuler</button>
+                <button class="btn btn-danger" id="confirmDelete">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialisation des variables
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        const productImageInput = document.getElementById('productImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const productNameInput = document.getElementById('productName');
+        const productModelInput = document.getElementById('productModel');
+        const productStockInput = document.getElementById('productStock');
+        const productDetailsInput = document.getElementById('productDetails');
+        const addProductBtn = document.getElementById('addProduct');
+        const productList = document.getElementById('productList');
+        const deleteAllBtn = document.getElementById('deleteAll');
+        const generatePDFBtn = document.getElementById('generatePDF');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const cancelDeleteBtn = document.getElementById('cancelDelete');
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+        
+        let selectedImage = null;
+        
+        // Gestion de la prévisualisation d'image
+        imagePreview.addEventListener('click', () => {
+            productImageInput.click();
+        });
+        
+        productImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedImage = e.target.result;
+                    imagePreview.innerHTML = `<img src="${selectedImage}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Ajout d'un produit
+        addProductBtn.addEventListener('click', () => {
+            const product = {
+                image: selectedImage,
+                name: productNameInput.value,
+                model: productModelInput.value,
+                stock: productStockInput.value,
+                details: productDetailsInput.value,
+                id: Date.now() // ID unique
+            };
+            
+            products.push(product);
+            saveProducts();
+            renderProducts();
+            clearForm();
+        });
+        
+        // Suppression de tous les produits
+        deleteAllBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'flex';
+        });
+        
+        cancelDeleteBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none';
+        });
+        
+        confirmDeleteBtn.addEventListener('click', () => {
+            products = [];
+            saveProducts();
+            renderProducts();
+            confirmationModal.style.display = 'none';
+        });
+        
+        // Génération du PDF
+        generatePDFBtn.addEventListener('click', () => {
+            if (products.length === 0) {
+                alert("Aucun produit à imprimer.");
+                return;
+            }
+            
+            generatePDF();
+        });
+        
+        // Fonctions utilitaires
+        function saveProducts() {
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+        
+        function clearForm() {
+            selectedImage = null;
+            imagePreview.innerHTML = '<span>+</span>';
+            productNameInput.value = '';
+            productModelInput.value = '';
+            productStockInput.value = '';
+            productDetailsInput.value = '';
+            productImageInput.value = '';
+        }
+        
+        function renderProducts() {
+            productList.innerHTML = '';
+            
+            if (products.length === 0) {
+                productList.innerHTML = '<p style="text-align: center; padding: 20px; color: #7f8c8d;">Aucun produit ajouté</p>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product-item';
+                productElement.innerHTML = `
+                    ${product.image ? `<div class="product-image"><img src="${product.image}" alt="${product.name}"></div>` : '<div class="product-image" style="background: #eee; display: flex; align-items: center; justify-content: center;">Aucune image</div>'}
+                    <div class="product-info">
+                        <div class="product-name">${product.name || 'Non spécifié'}</div>
+                        <div class="product-model">${product.model || 'Modèle non spécifié'}</div>
+                        <div class="product-stock">Stock: ${product.stock || '0'}</div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="action-btn delete-btn" data-id="${product.id}">✕</button>
+                    </div>
+                `;
+                
+                productList.appendChild(productElement);
+            });
+            
+            // Ajouter les écouteurs d'événements pour les boutons de suppression
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    deleteProduct(id);
+                });
+            });
+        }
+        
+        function deleteProduct(id) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+                products = products.filter(product => product.id !== id);
+                saveProducts();
+                renderProducts();
+            }
+        }
+        
+        function generatePDF() {
+            // Utilisation de html2canvas et jsPDF pour générer le PDF
+            const { jsPDF } = window.jspdf;
+            
+            // Créer un document PDF
+            const doc = new jsPDF();
+            
+            // Ajouter le logo en haut
+            const logo = new Image();
+            logo.src = 'https://i.postimg.cc/CKCgrnHb/5913292883186796968-1.jpg';
+            
+            // Attendre que l'image soit chargée
+            logo.onload = function() {
+                // Ajouter le logo
+                doc.addImage(logo, 'JPEG', 15, 15, 30, 30);
+                
+                // Titre du document
+                doc.setFontSize(22);
+                doc.setTextColor(44, 62, 80);
+                doc.text('LISTE DES PRODUITS', 105, 30, { align: 'center' });
+                
+                // Date de génération
+                doc.setFontSize(12);
+                doc.setTextColor(128, 139, 150);
+                doc.text(`Généré le: ${new Date().toLocaleDateString()}`, 105, 40, { align: 'center' });
+                
+                // Ligne séparatrice
+                doc.setDrawColor(44, 62, 80);
+                doc.line(15, 50, 195, 50);
+                
+                let yPosition = 60;
+                
+                // Ajouter chaque produit au PDF
+                products.forEach((product, index) => {
+                    // Vérifier si on doit ajouter une nouvelle page
+                    if (yPosition > 250) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+                    
+                    // Titre du produit
+                    doc.setFontSize(16);
+                    doc.setTextColor(44, 62, 80);
+                    doc.text(`Produit ${index + 1}: ${product.name || 'Non spécifié'}`, 20, yPosition);
+                    yPosition += 10;
+                    
+                    // Image du produit si disponible
+                    if (product.image) {
+                        try {
+                            doc.addImage(product.image, 'JPEG', 20, yPosition, 30, 30);
+                        } catch (e) {
+                            console.error("Erreur lors de l'ajout de l'image:", e);
+                        }
+                    }
+                    
+                    // Informations du produit
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    
+                    const textX = product.image ? 60 : 20;
+                    
+                    doc.text(`Modèle: ${product.model || 'Non spécifié'}`, textX, yPosition + 10);
+                    doc.text(`Stock: ${product.stock || '0'}`, textX, yPosition + 20);
+                    
+                    // Détails du produit (avec gestion du texte long)
+                    const details = product.details || 'Aucun détail';
+                    const splitDetails = doc.splitTextToSize(`Détails: ${details}`, 120);
+                    doc.text(splitDetails, textX, yPosition + 30);
+                    
+                    // Calculer la hauteur nécessaire pour les détails
+                    const detailsHeight = splitDetails.length * 7;
+                    
+                    // Ligne séparatrice
+                    doc.setDrawColor(200, 200, 200);
+                    doc.line(15, yPosition + 40 + detailsHeight, 195, yPosition + 40 + detailsHeight);
+                    
+                    yPosition += 50 + detailsHeight;
+                });
+                
+                // Sauvegarder le PDF
+                doc.save('liste_produits_chine.pdf');
+            };
+        }
+        
+        // Initialiser l'affichage des produits au chargement
+        document.addEventListener('DOMContentLoaded', renderProducts);
+    </script>
+</body>
+</html>
