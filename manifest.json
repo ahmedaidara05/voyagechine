@@ -1,0 +1,22 @@
+{
+  "name": "Gestion Produits Chine",
+  "short_name": "Produits Chine",
+  "description": "Application de gestion des produits pour la Chine",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#3498db",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/85RsLkrb/LOGO.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.postimg.cc/85RsLkrb/LOGO.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
