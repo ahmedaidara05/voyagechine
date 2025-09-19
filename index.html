@@ -6,6 +6,12 @@
     <title>Gestion Produits Chine</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3498db">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gestion Produits Chine">
+<link rel="apple-touch-icon" href="https://i.postimg.cc/85RsLkrb/LOGO.png">
     <style>
         * {
             margin: 0;
@@ -553,5 +559,59 @@
         // Initialiser l'affichage des produits au chargement
         document.addEventListener('DOMContentLoaded', renderProducts);
     </script>
+  <script>
+  // Enregistrement du Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js')
+        .then(function(registration) {
+          console.log('ServiceWorker enregistré avec succès: ', registration.scope);
+        })
+        .catch(function(error) {
+          console.log("Échec de l'enregistrement du ServiceWorker: ", error);
+        });
+    });
+  }
+
+  // Gestion de l'installation de l'application
+  let deferredPrompt;
+  const installButton = document.createElement('button');
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Empêche le navigateur de montrer l'invite d'installation automatique
+    e.preventDefault();
+    // Stocke l'événement pour l'utiliser plus tard
+    deferredPrompt = e;
+    
+    // Affiche un bouton d'installation personnalisé
+    installButton.textContent = '📱 Installer l\'app';
+    installButton.className = 'btn btn-success';
+    installButton.style.margin = '10px auto';
+    installButton.style.display = 'block';
+    installButton.addEventListener('click', installApp);
+    
+    document.querySelector('.footer-buttons').prepend(installButton);
+  });
+
+  function installApp() {
+    if (deferredPrompt) {
+      // Montre l'invite d'installation
+      deferredPrompt.prompt();
+      
+      // Attends que l'utilisateur réponde à l'invite
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('Utilisateur a accepté l\'installation');
+        } else {
+          console.log('Utilisateur a refusé l\'installation');
+        }
+        deferredPrompt = null;
+        
+        // Cache le bouton d'installation
+        installButton.style.display = 'none';
+      });
+    }
+  }
+</script>
 </body>
 </html>
